@@ -161,8 +161,9 @@ void Orderbook::CancelOrder(OrderId orderId) {
     if (!orders_.contains(orderId))
         return;
 
-    const auto& [order, orderIterator] = orders_.at(orderId);
-    orders_.erase(orderId);
+    const auto& entry = orders_.at(orderId);
+    auto order = entry.order_;
+    auto orderIterator = entry.location_;
 
     if (order->GetSide() == Side::Sell) {
         auto price = order->GetPrice();
@@ -178,6 +179,8 @@ void Orderbook::CancelOrder(OrderId orderId) {
         if (orders.empty())
             bids_.erase(price);
     }
+
+    orders_.erase(orderId);
 }
 
 // --- ModifyOrder ---
@@ -187,7 +190,7 @@ Trades Orderbook::ModifyOrder(OrderModify order) {
     if (!orders_.contains(order.GetOrderId()))
         return { };
 
-    const auto& [existingOrder, _] = orders_.at(order.GetOrderId());
+    auto existingOrder = orders_.at(order.GetOrderId()).order_;
     CancelOrder(order.GetOrderId());
     return AddOrder(order.ToOrderPointer(existingOrder->GetOrderType()));
 }
