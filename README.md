@@ -34,6 +34,8 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
 ├── src/                        # Implementation files
 │   ├── orderbook.cpp           # Main matching logic
 │   └── main.cpp                # Executable entry point
+│   ├── imbalance.cpp           # OBI calculation
+│   └── VWAP.cpp                # VWAP Calculation
 ├── tests/                      # Testing directory
 │   ├── test_order.cpp          # Unit tests for order state changes
 │   ├── test_orderbook_basic.cpp# Basic FIFO, price priority, cancel/replace matching
