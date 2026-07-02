@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(orderbook_lib
     src/orderbook.cpp
+    src/imbalance.cpp
+    src/vwap.cpp
 )
 target_include_directories(orderbook_lib PUBLIC include)
 
