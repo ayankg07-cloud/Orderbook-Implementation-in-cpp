@@ -1,6 +1,6 @@
-# C++ Limit Order Book (LOB) Matching Engine
+# C++ Limit Order Book (LOB) Matching Engine & Analytics Suite
 
-A high-performance C++20 Limit Order Book (LOB) designed with modern systems programming and exchange microstructure standards in mind. The project is fully structured with a CMake build system and contains an extensive test suite of 56 test cases built using Google Test, verifying correctness and performance under randomized stress scenarios.
+A high-performance C++20 Limit Order Book (LOB) designed with modern systems programming and exchange microstructure standards in mind. The project is fully structured with a CMake build system and contains an extensive test suite built using Google Test, verifying correctness, performance under randomized stress scenarios, and advanced analytics capabilities.
 
 ---
 
@@ -14,8 +14,13 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
 * **Optimized Data Structures**:
   * $O(1)$ amortized order cancellation/modification by mapping Order IDs directly to queue iterators via a hash map (`std::unordered_map`).
   * $O(\log N)$ price level insertion using balanced binary search trees (`std::map`).
+* **Advanced Trading Analytics & Pricing**:
+  * **Order Book Snapshots**: Capture instantaneous book state and calculate Micro-Price to indicate true underlying asset value.
+  * **VWAP Metrics**: Compute Volume-Weighted Average Price for executed trades and dynamic resting order book depth/volume.
+  * **Order Book Imbalance (OBI)**: Calculate simple and depth-weighted order flow imbalances to gauge buy/sell pressure.
+  * **Black-Scholes-Merton (BSM) Engine**: Integrated ultra-low-latency options pricing engine. Computes theoretical option prices and Greeks (Delta, Gamma, Vega, Theta, Rho) dynamically using orderbook micro-price as the spot price.
 * **Automated Correctness Verification**:
-  * 56 custom Google Test cases validating engine logic.
+  * Comprehensive custom Google Test cases validating engine logic, BSM outputs, and analytics.
   * Property-based invariant testing checking internal state validity after every single execution step.
   * 1,000,000 operation randomized stress test verifying stability and safety under extreme trade flows.
 
@@ -23,24 +28,32 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
 
 ## 📁 Project Structure
 
-```
+```text
 ├── CMakeLists.txt              # Cross-platform build configuration
 ├── .gitignore                  # Professional git exclusions (build/ and binary outputs)
 ├── include/                    # Header files (Declarations)
 │   ├── types.h                 # Quant price/qty typings and LevelInfo structures
 │   ├── order.h                 # Order and OrderModify definitions
 │   ├── trade.h                 # Trade execution structures
-│   └── orderbook.h             # Orderbook matching engine declaration
+│   ├── orderbook.h             # Orderbook matching engine declaration
+│   ├── book_snapshot.h         # Order book state snapshots and micro-price
+│   ├── bsm_engine.h            # Stateless Black-Scholes-Merton pricing engine
+│   └── option_pricer.h         # Options pricing using orderbook micro-prices
 ├── src/                        # Implementation files
 │   ├── orderbook.cpp           # Main matching logic
+│   ├── snapshot.cpp            # Book snapshot implementation
+│   ├── imbalance.cpp           # Order Book Imbalance (OBI) calculations
+│   ├── vwap.cpp                # VWAP and depth metrics
+│   ├── bsm_engine.cpp          # Options pricing and Greeks calculations
+│   ├── option_pricer.cpp       # Option pricer logic wrapping book snapshots
 │   └── main.cpp                # Executable entry point
-│   ├── imbalance.cpp           # OBI calculation
-│   └── VWAP.cpp                # VWAP Calculation
 ├── tests/                      # Testing directory
 │   ├── test_order.cpp          # Unit tests for order state changes
 │   ├── test_orderbook_basic.cpp# Basic FIFO, price priority, cancel/replace matching
 │   ├── test_orderbook_types.cpp# Type-specific rules (Market and FAK executions)
-│   └── test_invariants.cpp     # Property-based testing & 1M-operation stress test
+│   ├── test_invariants.cpp     # Property-based testing & 1M-operation stress test
+│   ├── test_bsm_engine.cpp     # Black-Scholes and Greeks math verification
+│   └── test_option_pricer.cpp  # Dynamic option pricing logic verification
 └── README.md                   
 ```
 
@@ -90,4 +103,8 @@ In `tests/test_invariants.cpp`, the book verifies structural invariants after ev
 
 ### 2. Randomized Fuzz & Stress Testing
 * **10,000 Action Loop**: Executes a deterministic seed sequence of random order insertions, cancels, and modifies, checking every single invariant rule after each step.
-* **1,000,000 Action Stress Test**: Fires 1 million randomized orders (GTC, FAK, Market), cancels, and replaces to verify that the matching engine has zero segmentation faults, memory corruption, or performance bottlenecks under heavy volumes (completes in ~21 seconds).
+* **1,000,000 Action Stress Test**: Fires 1 million randomized orders (GTC, FAK, Market), cancels, and replaces to verify that the matching engine has zero segmentation faults, memory corruption, or performance bottlenecks under heavy volumes.
+
+### 3. Analytics & Pricing Tests
+* **BSM Engine Verification**: Validates the mathematical exactness of Delta, Gamma, Theta, Vega, Rho, and Option prices against known quantitative benchmarks.
+* **Snapshot Integrations**: Ensures order book metrics (micro-price, imbalance) correctly update as limit orders are consumed.

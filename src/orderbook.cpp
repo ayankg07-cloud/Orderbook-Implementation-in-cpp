@@ -1,5 +1,4 @@
 #include "orderbook.h"
-
 #include <numeric>
 
 // --- CanMatch ---

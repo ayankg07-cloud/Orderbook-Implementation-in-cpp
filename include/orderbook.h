@@ -2,6 +2,7 @@
 #include "order.h"
 #include "trade.h"
 #include "types.h"
+#include "book_snapshot.h"
 #include <map>
 #include <unordered_map>
 
@@ -37,7 +38,12 @@ public:
     Trades AddOrder(OrderPointer order);
     void   CancelOrder(OrderId orderId);
     Trades ModifyOrder(OrderModify order); 
-
+    double GetSimpleObi() const;
+    double GetWeightedObi(std::size_t Levels) const;
+    static double GetTradedVWAP(const Trades& trades);
+    double GetBookVWAPByDepth(Side side, std::size_t levels) const;
+    double GetBookVWAPByVolume(Side side, Quantity targetVolume) const;
     std::size_t Size() const { return orders_.size(); }
     OrderbookLevelInfos GetOrderInfos() const;
+    BookSnapshot GetSnapshot() const;
 };

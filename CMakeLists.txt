@@ -7,6 +7,9 @@ add_library(orderbook_lib
     src/orderbook.cpp
     src/imbalance.cpp
     src/vwap.cpp
+    src/bsm_engine.cpp
+    src/snapshot.cpp
+    src/option_pricer.cpp
 )
 target_include_directories(orderbook_lib PUBLIC include)
 
@@ -49,9 +52,20 @@ add_executable(test_invariants tests/test_invariants.cpp)
 target_link_libraries(test_invariants PRIVATE orderbook_lib GTest::gtest_main)
 target_include_directories(test_invariants PRIVATE include)
 
+add_executable(test_bsm_engine tests/test_bsm_engine.cpp)
+target_link_libraries(test_bsm_engine PRIVATE orderbook_lib GTest::gtest_main)
+target_include_directories(test_bsm_engine PRIVATE include)
+
+add_executable(test_option_pricer tests/test_option_pricer.cpp)
+target_link_libraries(test_option_pricer PRIVATE orderbook_lib GTest::gtest_main)
+target_include_directories(test_option_pricer PRIVATE include)
+
+
 # Register tests with CTest so "ctest" discovers them
 include(GoogleTest)
 gtest_discover_tests(test_order)
 gtest_discover_tests(test_orderbook_basic)
 gtest_discover_tests(test_orderbook_types)
 gtest_discover_tests(test_invariants)
+gtest_discover_tests(test_bsm_engine)
+gtest_discover_tests(test_option_pricer)

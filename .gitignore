@@ -46,6 +46,7 @@ tempCodeRunnerFile*
 
 # CMake Build Directory
 build/
+build_new/
 bin/
 lib/
 CMakeUserPresets.json
