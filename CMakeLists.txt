@@ -28,6 +28,16 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# --- Google Benchmark
+FetchContent_Declare(
+    googlebenchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG        v1.9.1
+)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googlebenchmark)
+
 # Enable CTest
 enable_testing()
 
@@ -69,3 +79,8 @@ gtest_discover_tests(test_orderbook_types)
 gtest_discover_tests(test_invariants)
 gtest_discover_tests(test_bsm_engine)
 gtest_discover_tests(test_option_pricer)
+
+# --- Benchmarks ---
+add_executable(benchmark_engine tests/benchmark_engine.cpp)
+target_link_libraries(benchmark_engine PRIVATE orderbook_lib benchmark::benchmark benchmark::benchmark_main)
+target_include_directories(benchmark_engine PRIVATE include)

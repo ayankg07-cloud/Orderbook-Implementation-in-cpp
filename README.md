@@ -19,6 +19,8 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
   * **VWAP Metrics**: Compute Volume-Weighted Average Price for executed trades and dynamic resting order book depth/volume.
   * **Order Book Imbalance (OBI)**: Calculate simple and depth-weighted order flow imbalances to gauge buy/sell pressure.
   * **Black-Scholes-Merton (BSM) Engine**: Integrated ultra-low-latency options pricing engine. Computes theoretical option prices and Greeks (Delta, Gamma, Vega, Theta, Rho) dynamically using orderbook micro-price as the spot price.
+  * **Implied Volatility (IV) Solver**: Robust numerical root-finding solver (Newton-Raphson with guaranteed Bisection fallback) to extract market-implied volatility, protected against Zero-Vega traps and boundary violations.
+  * **Dual-Dividend Modeling**: Supports Continuous Dividend Yield ($q$) for indices and FX options, and an Escrowed Dividend Model (handling exact Discrete Dividends) for single-name equities.
 * **Automated Correctness Verification**:
   * Comprehensive custom Google Test cases validating engine logic, BSM outputs, and analytics.
   * Property-based invariant testing checking internal state validity after every single execution step.
@@ -38,6 +40,7 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
 │   ├── orderbook.h             # Orderbook matching engine declaration
 │   ├── book_snapshot.h         # Order book state snapshots and micro-price
 │   ├── bsm_engine.h            # Stateless Black-Scholes-Merton pricing engine
+│   ├── discrete_dividend.h     # Escrowed dividend model structures
 │   └── option_pricer.h         # Options pricing using orderbook micro-prices
 ├── src/                        # Implementation files
 │   ├── orderbook.cpp           # Main matching logic
@@ -88,6 +91,12 @@ ctest --test-dir build --output-on-failure
 ./build/orderbook_main.exe
 ```
 
+### 5. Run the Micro-Benchmarks
+To run the Google Benchmark suite and measure the nanosecond latency of the BSM Engine and Orderbook:
+```bash
+./build/benchmark_engine.exe
+```
+
 ---
 
 ## 🧪 Testing Strategy 
@@ -108,3 +117,13 @@ In `tests/test_invariants.cpp`, the book verifies structural invariants after ev
 ### 3. Analytics & Pricing Tests
 * **BSM Engine Verification**: Validates the mathematical exactness of Delta, Gamma, Theta, Vega, Rho, and Option prices against known quantitative benchmarks.
 * **Snapshot Integrations**: Ensures order book metrics (micro-price, imbalance) correctly update as limit orders are consumed.
+
+> **Note**: For detailed nanosecond-level latency metrics and stress test results, see the [PERFORMANCE.md](PERFORMANCE.md) document.
+
+---
+
+## 🔮 Future Architecture (HFT Optimizations)
+While the current implementation uses standard C++ STL containers (`std::map`, `std::shared_ptr`) to prioritize algorithmic clarity and testability, a production deployment to an ultra-low-latency environment would implement the following hardware-level optimizations:
+1. **Custom Memory Pooling**: Replacing heap allocations (`std::make_shared`) with a pre-allocated contiguous `std::vector<Order>` pool. This eliminates latency spikes caused by OS-level memory allocation (`malloc`/`new`) during trading hours.
+2. **Lock-Free Concurrency**: Splitting the architecture into a multi-threaded system where Market Data / Order ingestion runs on Thread A, and the heavy BSM / IV Solver runs on Thread B, communicating via an atomic Single-Producer Single-Consumer (SPSC) ring buffer to avoid mutex locking overhead.
+3. **Array-Backed Price Levels**: Replacing the `std::map` Red-Black tree with a flat-array or sparse-hash structure to ensure CPU cache locality and eliminate pointer-chasing cache misses.
