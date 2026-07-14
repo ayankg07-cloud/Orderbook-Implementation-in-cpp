@@ -51,12 +51,14 @@ A high-performance C++20 Limit Order Book (LOB) designed with modern systems pro
 │   ├── option_pricer.cpp       # Option pricer logic wrapping book snapshots
 │   └── main.cpp                # Executable entry point
 ├── tests/                      # Testing directory
+│   ├── benchmark_engine.cpp    # Google Benchmark nanosecond latency metrics
 │   ├── test_order.cpp          # Unit tests for order state changes
 │   ├── test_orderbook_basic.cpp# Basic FIFO, price priority, cancel/replace matching
 │   ├── test_orderbook_types.cpp# Type-specific rules (Market and FAK executions)
 │   ├── test_invariants.cpp     # Property-based testing & 1M-operation stress test
 │   ├── test_bsm_engine.cpp     # Black-Scholes and Greeks math verification
 │   └── test_option_pricer.cpp  # Dynamic option pricing logic verification
+├── PERFORMANCE.md              # Detailed latency and stress-test metrics
 └── README.md                   
 ```
 
